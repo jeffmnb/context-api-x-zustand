@@ -1,7 +1,8 @@
 import React from "react"
 import { useUserStore } from "../../useUserStore"
+
 export const UpdateProfileZ: React.FC = () => {
-  const updateUser = useUserStore((state) => state.updateUser)
+  const { updateTheme, updateUser } = useUserStore()
   return (
     <>
       <input
@@ -21,6 +22,15 @@ export const UpdateProfileZ: React.FC = () => {
         placeholder="Digite o score"
         onChange={(val) => updateUser({ score: parseInt(val.target.value) })}
       />
+      <br />
+      <select
+        name="theme"
+        id="theme"
+        onChange={(val) => updateTheme(val.target.value)}
+      >
+        <option value="light">Claro</option>
+        <option value="dark">Escuro</option>
+      </select>
     </>
   )
 }
