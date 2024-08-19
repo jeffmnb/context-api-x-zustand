@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import { createJSONStorage, persist } from "zustand/middleware"
+import { createJSONStorage, persist, devtools } from "zustand/middleware"
 
 type User = {
   fullName: string
@@ -17,19 +17,34 @@ type UserStoreProps = {
 const initialStoreValue = {
   user: { fullName: "", mail: "", score: 0 },
   theme: "light",
-} as const
+} as UserStoreProps
 
 export const useUserStore = create<UserStoreProps>()(
-  persist(
-    (set) => ({
-      ...initialStoreValue,
-      updateTheme: (newTheme) => set(() => ({ theme: newTheme })),
-      updateUser: (newUserData) =>
-        set(({ user }) => ({ user: { ...user, ...newUserData } })),
-    }),
+  devtools(
+    persist(
+      (set) => ({
+        ...initialStoreValue,
+        updateTheme: (newTheme) =>
+          set(() => ({ theme: newTheme }), false, "updateTheme"),
+        updateUser: (newUserData) =>
+          set(
+            ({ user }) => ({ user: { ...user, ...newUserData } }),
+            false,
+            "updateUser",
+          ),
+      }),
+      {
+        name: "@app/user-store",
+        storage: createJSONStorage(() => sessionStorage),
+        partialize: (state) =>
+          Object.fromEntries(
+            Object.entries(state).filter(([key]) => !["user"].includes(key)),
+          ),
+      },
+    ),
     {
-      name: "@app/user-store",
-      storage: createJSONStorage(() => sessionStorage),
+      enabled: true,
+      trace: true,
     },
   ),
 )
